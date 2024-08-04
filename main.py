@@ -3,8 +3,16 @@ from tkinter import ttk
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import pandas as pd
+import os
 
-df = pd.read_csv('C:\\Users\\Creeper Gang\\Desktop\\simpliibudget\\SIMPLII.csv')
+script_dir = os.path.dirname(os.path.abspath(__file__))
+csv_path = os.path.join(script_dir, 'SIMPLII.csv')
+if os.path.isfile(csv_path):
+    print(f'File found: {csv_path}')
+else:
+    print('File not found')
+
+df = pd.read_csv(csv_path)
 print(df.head())
 print(df.columns.tolist())
 
