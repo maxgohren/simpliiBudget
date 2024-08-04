@@ -5,14 +5,38 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import pandas as pd
 
 df = pd.read_csv('C:\\Users\\Creeper Gang\\Desktop\\simpliibudget\\SIMPLII.csv')
-print(df.head())
-print(df.columns.tolist())
-
-# Clean up data
 df['Date'] = pd.to_datetime(df['Date'], format='%m/%d/%Y') # Convert to datetime
 df['Month'] = df['Date'].dt.to_period('M')
 
-print(df.head())
+# Define categories and keywords
+categories = {
+    'Gas': ['gas', 'gasoline', 'petrol', 'fuel'],
+    'Food': ['dinner', 'restaurant', 'meal', 'grocery', 'supermarket'],
+    'Shopping': ['purchase', 'buy', 'shop', 'store', 'online'],
+    'Entertainment': ['movie', 'concert', 'event', 'ticket', 'show'],
+    'Healthcare': ['pharmacy', 'doctor', 'medical', 'clinic', 'hospital'],
+    'Utilities': ['electricity', 'water', 'internet', 'phone', 'utility'],
+    'Travel': ['flight', 'hotel', 'train', 'bus', 'travel'],
+    'Dining': ['cafe', 'bistro', 'brunch', 'lunch', 'dining'],
+    'Transport': ['taxi', 'uber', 'ride', 'transport', 'car hire'],
+    'Fitness': ['gym', 'yoga', 'exercise', 'workout', 'fitness'],
+    'Education': ['tuition', 'school', 'course', 'education', 'training'],
+    'Subscription': ['monthly fee', 'subscription', 'membership', 'renewal'],
+    'Other': []  # Default category if no match
+}
+
+# Function to categorize transactions
+def categorize_transaction(detail):
+    for category, keywords in categories.items():
+        if any(keyword.lower() in detail.lower() for keyword in keywords):
+            return category
+    return 'Other'
+
+# Apply the categorization function to the DataFrame
+df['Category'] = df['Transaction Details'].apply(categorize_transaction)
+
+# Overwrite Data
+df.to_csv('SIMPLII.csv', index=False)
 
 class DataFilterApp:
     def __init__(self,root):
@@ -29,6 +53,7 @@ class DataFilterApp:
         self.month_dropdown  = ttk.Combobox(root, textvariable=self.month_var)
         self.month_dropdown['values'] = df['Month'].unique().tolist()
         self.month_dropdown.bind('<<ComboboxSelected>>', self.update_data)
+        self.month_dropdown.set(df['Month'].iloc[0])
         self.month_dropdown.pack()
 
         # Transactions Window
@@ -77,8 +102,12 @@ class DataFilterApp:
         canvas.draw()
         canvas.get_tk_widget().pack(expand=True, fill=tk.BOTH)
 
+        
+
 # Run the Tkinter event loop
 if __name__ == "__main__":
     root = tk.Tk()
+    root.geometry("1000x1000")
+    root.title("SIMPLII Budget")
     app = DataFilterApp(root)
     root.mainloop()
